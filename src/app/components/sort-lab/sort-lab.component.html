@@ -23,7 +23,7 @@
       <div class="input-list">
         <div *ngFor="let num of numbers; let i = index" class="input-item">
           <input type="number" [(ngModel)]="numbers[i]" />
-          <button mat-icon-button (click)="removeNumber(i)">X</button>
+          <button mat-icon-button (click)="removeNumber(i)"><mat-icon>delete_outline</mat-icon></button>
         </div>
 
       </div>
@@ -36,11 +36,44 @@
         <button mat-raised-button (click)="clear()">Clear</button>
         <button mat-raised-button color="primary" (click)="submit()">Submit</button>
       </div>
+      <section class="description-section">
+        <h2>Instructions</h2>
+        <div class="algorithm-overview">
+          <!--      <h3>Algorithm Overview</h3>-->
+          <!--      <p>{{ algorithmDescription }}</p>-->
+          <!--      <h3>Input Data</h3>-->
+          <!--      <p>{{ numbers.join(', ') }}</p>-->
+        </div>
+        <div class="current-actions">
+          <h3>Current Actions</h3>
+          <p>{{ currentAction }}</p>
+        </div>
+      </section>
     </section>
 
     <!-- Visualization Section -->
     <section class="visualization-section">
-      <h2>Visualization ({{ mode === 'single' ? '1 algo' : mode === 'dual' ? 'compare 2 algo' : 'compare 6 algo' }})</h2>
+      <div class="visualization-section1">
+        <h2>Visualization ({{ mode === 'single' ? '1 algo' : mode === 'dual' ? 'compare 2 algo' : 'compare 6 algo' }})</h2>
+        <div class="algorithm-selection">
+<!--          <h2>Select Algorithms</h2>-->
+          <div class="algorithm-selectors">
+            <mat-form-field appearance="fill" *ngIf="mode === 'single' || mode === 'dual'" class="custom-select">
+              <mat-label>Algorithm 1</mat-label>
+              <mat-select [(value)]="selectedAlgorithm" (selectionChange)="reset()">
+                <mat-option *ngFor="let algo of algorithms" [value]="algo">{{ algorithmNames[algo] }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="fill" *ngIf="mode === 'dual'" class="custom-select">
+              <mat-label>Algorithm 2</mat-label>
+              <mat-select [(value)]="selectedAlgorithm2" (selectionChange)="reset()">
+                <mat-option *ngFor="let algo of getAvailableAlgorithmsForSecondDropdown()" [value]="algo">{{ algorithmNames[algo] }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
       <div class="charts-container" [ngClass]="mode">
         <div *ngFor="let state of algorithmStates" class="chart-wrapper" [attr.data-algo]="state.name">
           <h3>{{ algorithmNames[state.name] }} ({{ getExecutionTime(state) }})</h3>
@@ -57,70 +90,99 @@
           </div>
         </div>
       </div>
+      <section class="control-section">
+<!--        <h2>Controls</h2>-->
+        <div class="controls">
+          <button mat-raised-button color="primary" (click)="play()">{{ playButtonText }}</button>
+          <button mat-raised-button (click)="pause()">{{ pauseButtonText }}</button>
+          <button mat-raised-button (click)="backStep()" [disabled]="!canGoBack()">Back Step</button>
+          <button mat-raised-button (click)="nextStep()">Next Step</button>
+
+          <div class="speed-control">
+            <span>Speed:</span>
+            <mat-slider
+              class="speed-slider"
+              [min]="1"
+              [max]="10"
+              [step]="1"
+              thumbLabel
+              [displayWith]="formatSpeedLabel"
+              [(ngModel)]="speed"
+              (input)="onSpeedChange($event)"
+            >
+              <input matSliderThumb />
+            </mat-slider>
+          </div>
+        </div>
+      </section>
+
+
     </section>
   </div>
 
   <!-- Algorithm Selection -->
-  <section class="algorithm-selection">
-    <h2>Select Algorithms</h2>
-    <div class="algorithm-selectors">
-      <mat-form-field appearance="fill" *ngIf="mode === 'single' || mode === 'dual'" class="custom-select">
-        <mat-label>Algorithm 1</mat-label>
-        <mat-select [(value)]="selectedAlgorithm" (selectionChange)="reset()">
-          <mat-option *ngFor="let algo of algorithms" [value]="algo">{{ algorithmNames[algo] }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="fill" *ngIf="mode === 'dual'" class="custom-select">
-        <mat-label>Algorithm 2</mat-label>
-        <mat-select [(value)]="selectedAlgorithm2" (selectionChange)="reset()">
-          <mat-option *ngFor="let algo of getAvailableAlgorithmsForSecondDropdown()" [value]="algo">{{ algorithmNames[algo] }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-  </section>
+<!--  <section class="algorithm-selection">-->
+<!--    <h2>Select Algorithms</h2>-->
+<!--    <div class="algorithm-selectors">-->
+<!--      <mat-form-field appearance="fill" *ngIf="mode === 'single' || mode === 'dual'" class="custom-select">-->
+<!--        <mat-label>Algorithm 1</mat-label>-->
+<!--        <mat-select [(value)]="selectedAlgorithm" (selectionChange)="reset()">-->
+<!--          <mat-option *ngFor="let algo of algorithms" [value]="algo">{{ algorithmNames[algo] }}</mat-option>-->
+<!--        </mat-select>-->
+<!--      </mat-form-field>-->
+<!--      <mat-form-field appearance="fill" *ngIf="mode === 'dual'" class="custom-select">-->
+<!--        <mat-label>Algorithm 2</mat-label>-->
+<!--        <mat-select [(value)]="selectedAlgorithm2" (selectionChange)="reset()">-->
+<!--          <mat-option *ngFor="let algo of getAvailableAlgorithmsForSecondDropdown()" [value]="algo">{{ algorithmNames[algo] }}</mat-option>-->
+<!--        </mat-select>-->
+<!--      </mat-form-field>-->
+<!--    </div>-->
+<!--  </section>-->
 
   <!-- Control Section -->
-  <section class="control-section">
-    <h2>Controls</h2>
-    <div class="controls">
-      <button mat-raised-button color="primary" (click)="play()">{{ playButtonText }}</button>
-      <button mat-raised-button (click)="pause()">{{ pauseButtonText }}</button>
-      <button mat-raised-button (click)="nextStep()">Next Step</button>
-      <div class="speed-control">
-        <span>Speed:</span>
-        <mat-slider
-          class="speed-slider"
-          [min]="1"
-          [max]="10"
-          [step]="1"
-          thumbLabel
-          [displayWith]="formatSpeedLabel"
-          [(ngModel)]="speed"
-          (input)="onSpeedChange($event)"
-        >
-          <input matSliderThumb />
-        </mat-slider>
-      </div>
-    </div>
-  </section>
+<!--  <section class="control-section">-->
+<!--    <h2>Controls</h2>-->
+<!--    <div class="controls">-->
+<!--      <button mat-raised-button color="primary" (click)="play()">{{ playButtonText }}</button>-->
+<!--      <button mat-raised-button (click)="pause()">{{ pauseButtonText }}</button>-->
+<!--      <button mat-raised-button>Previous Step</button>-->
+<!--      <button mat-raised-button (click)="nextStep()">Next Step</button>-->
+
+<!--      <div class="speed-control">-->
+<!--        <span>Speed:</span>-->
+<!--        <mat-slider-->
+<!--          class="speed-slider"-->
+<!--          [min]="1"-->
+<!--          [max]="10"-->
+<!--          [step]="1"-->
+<!--          thumbLabel-->
+<!--          [displayWith]="formatSpeedLabel"-->
+<!--          [(ngModel)]="speed"-->
+<!--          (input)="onSpeedChange($event)"-->
+<!--        >-->
+<!--          <input matSliderThumb />-->
+<!--        </mat-slider>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </section>-->
 
   <!-- Description Section -->
-  <section class="description-section">
-    <h2>Instructions</h2>
-    <div class="algorithm-overview">
-      <h3>Algorithm Overview</h3>
-      <p>{{ algorithmDescription }}</p>
-      <h3>Input Data</h3>
-      <p>{{ numbers.join(', ') }}</p>
-    </div>
-    <div class="current-actions">
-      <h3>Current Actions</h3>
-      <p>{{ currentAction }}</p>
-    </div>
-  </section>
+<!--  <section class="description-section">-->
+<!--    <h2>Instructions</h2>-->
+<!--    <div class="algorithm-overview">-->
+<!--&lt;!&ndash;      <h3>Algorithm Overview</h3>&ndash;&gt;-->
+<!--&lt;!&ndash;      <p>{{ algorithmDescription }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;      <h3>Input Data</h3>&ndash;&gt;-->
+<!--&lt;!&ndash;      <p>{{ numbers.join(', ') }}</p>&ndash;&gt;-->
+<!--    </div>-->
+<!--    <div class="current-actions">-->
+<!--      <h3>Current Actions</h3>-->
+<!--      <p>{{ currentAction }}</p>-->
+<!--    </div>-->
+<!--  </section>-->
 
   <!-- Footer -->
-  <footer class="footer">
-    <p>Powered by Angular & xAI</p>
-  </footer>
+<!--  <footer class="footer">-->
+<!--    <p>Powered by Seven team</p>-->
+<!--  </footer>-->
 </div>

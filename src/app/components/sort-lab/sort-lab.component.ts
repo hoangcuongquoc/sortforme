@@ -20,6 +20,15 @@ interface AlgorithmState {
   shellGap?: number;
   shellI?: number;
   radixDigit?: number;
+  history?: {
+    numbers: number[];
+    currentStep: number;
+    swapIndices?: [number, number];
+    currentAction: string;
+    shellGap?: number;
+    shellI?: number;
+    radixDigit?: number;
+  }[];
 }
 
 @Component({
@@ -46,13 +55,14 @@ export class SortLabComponent implements OnInit, OnDestroy {
   numbers: number[] = [1, 2, 12, 1, 23, 12, 18, 9];
   newNumber: number | null = null;
   algorithmDescription: string = '';
-  currentAction: string = '';
   speed: number = 1;
   isPlaying: boolean = false;
   currentStep: number = 0;
   playButtonText: string = 'Play';
   pauseButtonText: string = 'Pause';
   private timeoutId: any = null; // Biến để lưu ID của setTimeout
+  previousStates: any[][] = []; // lưu lại lịch sử các bước
+  currentAction: string = '';
 
 
   algorithmStates: AlgorithmState[] = [];
@@ -220,23 +230,39 @@ export class SortLabComponent implements OnInit, OnDestroy {
   }
 
   nextStep() {
+    const clonedState = JSON.parse(JSON.stringify(this.algorithmStates));
+    this.previousStates.push(clonedState);
     this.algorithmStates.forEach(state => {
       if (!state.isFinished) {
         this.runAlgorithmStep(state);
       }
     });
   }
-
-onSpeedChange(event: Event) {
-  const inputElement = event.target as HTMLInputElement;
-  const value = Number(inputElement.value);
-  console.log('Speed changed to:', value);
-  this.speed = value;
-  if (this.isPlaying) {
-    this.clearTimeout();
-    this.runAlgorithms();
+  backStep() {
+    const prevState = this.previousStates.pop();
+    if (prevState) {
+      this.algorithmStates = prevState;
+      this.currentAction = 'Stepped back';
+    }
   }
-}
+
+
+  canGoBack(): boolean {
+    return this.previousStates.length > 0;
+  }
+
+
+
+  onSpeedChange(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const value = Number(inputElement.value);
+    console.log('Speed changed to:', value);
+    this.speed = value;
+    if (this.isPlaying) {
+      this.clearTimeout();
+      this.runAlgorithms();
+    }
+  }
 
   updateDescription() {
     this.algorithmDescription = this.algorithmDescriptions[this.selectedAlgorithm] || 'Select an algorithm to see its description.';
@@ -249,6 +275,8 @@ onSpeedChange(event: Event) {
     }
     return index === state.currentStep && !state.isFinished ? '#1a73e8' : '#673ab7';
   }
+
+
 
   runAlgorithms() {
     if (!this.isPlaying) return;

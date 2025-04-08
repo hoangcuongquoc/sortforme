@@ -8,12 +8,28 @@ function createWindow() {
     height: 800,
     webPreferences: {
       contextIsolation: true,
+      nodeIntegration: false,
+      webSecurity: false, //
     }
+
+
   });
+
+  // const indexPath = isDev
+  //   ? 'http://localhost:4200'
+  //   : `file://${path.join(__dirname, '/dist/app-sort/browser/index.html')}`;
+
+  // const indexPath = isDev
+  //   ? 'http://localhost:4200'
+  //   : `file://${path.join(__dirname, 'dist', 'index.html')}`;
+  //
 
   const indexPath = isDev
     ? 'http://localhost:4200'
-    : `file://${path.join(__dirname, '/dist/angular-desktop-app/browser/index.html')}`;
+    : `file://${path.resolve(__dirname, 'dist/index.html')}`;
+
+// Nhớ đổi <project-name> thành tên project Angular thực tế
+
 
   win.loadURL(indexPath);
 
@@ -37,3 +53,6 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
+
+console.log('Loading:', path.join(__dirname, 'dist/app-sort/index.html'));
+
