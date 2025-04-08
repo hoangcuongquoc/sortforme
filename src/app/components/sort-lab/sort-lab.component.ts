@@ -52,7 +52,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
   mode: 'single' | 'dual' | 'all' = 'single';
   selectedAlgorithm: string = 'insertion';
   selectedAlgorithm2: string = 'bubble';
-  numbers: number[] = [1, 2, 12, 1, 23, 12, 18, 9];
+  numbers: number[] = [1, 2, 12, 23, 12, 18, 9 , 20, 5, 6, 7];
   newNumber: number | null = null;
   algorithmDescription: string = '';
   speed: number = 1;
@@ -159,7 +159,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
   }
 
   randomize() {
-    this.numbers = Array.from({ length: 9 }, () => Math.floor(Math.random() * 20) + 1);
+    this.numbers = Array.from({ length: 12 }, () => Math.floor(Math.random() * 20) + 1);
     this.reset();
   }
 
