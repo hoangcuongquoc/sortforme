@@ -89,16 +89,16 @@
           </div>
         </div>
 
-        <div class="pe">
-          <app-code-highlight
-            [codeLines]="pseudoCodes[selectedAlgorithm]"
-            [activeLine]="currentLineIndex">
-          </app-code-highlight>
-          <app-sorting-chart
-            [algorithm]="selectedAlgorithm"
-            (stepChange)="currentStep = $event">
-          </app-sorting-chart>
-        </div>
+        <div class="pe" *ngIf="mode === 'single'">
+              <app-code-highlight
+                [codeLines]="pseudoCodes[selectedAlgorithm]"
+                [activeLine]="currentLineIndex">
+              </app-code-highlight>
+              <app-sorting-chart
+                [algorithm]="selectedAlgorithm"
+                (stepChange)="currentStep = $event">
+              </app-sorting-chart>
+            </div>
 
 
       </div>

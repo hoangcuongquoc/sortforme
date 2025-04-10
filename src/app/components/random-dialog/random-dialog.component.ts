@@ -69,7 +69,7 @@ import {NgIf} from '@angular/common';
     <h2 mat-dialog-title>Nhập số phần tử</h2>
     <mat-dialog-content>
       <mat-form-field appearance="fill">
-        <mat-label>Số lượng (n ≤ 25)</mat-label>
+        <mat-label>Số lượng (n ≤ 27)</mat-label>
         <input matInput type="number" [(ngModel)]="elementCount"/>
         <mat-hint *ngIf="elementCount > 27" style="color: red;">Số lượng phải ≤ 27</mat-hint>
       </mat-form-field>
