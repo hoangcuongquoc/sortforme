@@ -159,7 +159,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
   }
 
   randomize() {
-    this.numbers = Array.from({ length: 12 }, () => Math.floor(Math.random() * 20) + 1);
+    this.numbers = Array.from({ length: 27 }, () => Math.floor(Math.random() * 20) + 1);
     this.reset();
   }
 
