@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, SimpleChanges, Output, EventEmitter, ViewChild} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,13 @@ import { MatSliderModule } from '@angular/material/slider';
 import { FormsModule } from '@angular/forms';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import { Router } from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {RandomDialogComponent} from '../random-dialog/random-dialog.component';
+import { AlgorithmPseudocode } from '../../shared/algorithm-pseudo';
+import {CodeHighlightComponent} from '../code-highlight/code-highlight.component';
+import {SortingChartComponent} from '../sorting-chart/sorting-chart.component';
+import {delay} from 'rxjs';
+
 
 interface AlgorithmState {
   name: string;
@@ -33,8 +40,8 @@ interface AlgorithmState {
 
 @Component({
   selector: 'app-sort-lab',
-  templateUrl: './sort-lab.component.html',
-  styleUrls: ['./sort-lab.component.scss'],
+  templateUrl: 'sort-lab.component.html',
+  styleUrls: ['sort-lab.component.scss'],
   standalone: true,
   imports: [
     FormsModule,
@@ -46,8 +53,14 @@ interface AlgorithmState {
     NgForOf,
     NgClass,
     NgIf,
+    CodeHighlightComponent,
+    SortingChartComponent,
+
   ],
 })
+
+
+
 export class SortLabComponent implements OnInit, OnDestroy {
   mode: 'single' | 'dual' | 'all' = 'single';
   selectedAlgorithm: string = 'insertion';
@@ -60,9 +73,19 @@ export class SortLabComponent implements OnInit, OnDestroy {
   currentStep: number = 0;
   playButtonText: string = 'Play';
   pauseButtonText: string = 'Pause';
-  private timeoutId: any = null; // Biến để lưu ID của setTimeout
-  previousStates: any[][] = []; // lưu lại lịch sử các bước
+  private timeoutId: any = null;
+  previousStates: any[][] = [];
   currentAction: string = '';
+  currentPseudoCode: string[] = [];
+  pseudoCodeList: string[] = ['Line 1', 'Line 2', 'Line 3'];
+  currentLineIndex = 0;
+
+  @Output() stepChange = new EventEmitter<number>();
+
+
+
+
+  @ViewChild('chart') chartComponent!: any;
 
 
   algorithmStates: AlgorithmState[] = [];
@@ -75,6 +98,58 @@ export class SortLabComponent implements OnInit, OnDestroy {
     radix: 'Radix Sort',
     selection: 'Selection Sort',
   };
+
+
+
+
+  pseudoCodes: { [key in typeof this.selectedAlgorithm]: string[] } = {
+    bubble: [
+      'for i from 0 to n-1',
+      '  for j from 0 to n-i-1',
+      '    if arr[j] > arr[j+1]',
+      '      swap(arr[j], arr[j+1])'
+    ],
+    selection: [
+      'for i from 0 to n-1',
+      '  minIndex = i',
+      '  for j from i+1 to n',
+      '    if arr[j] < arr[minIndex]',
+      '      minIndex = j',
+      '  swap(arr[i], arr[minIndex])'
+    ],
+    insertion: [
+      'for i from 1 to n-1',
+      '  key = arr[i]',
+      '  j = i - 1',
+      '  while j >= 0 and arr[j] > key',
+      '    arr[j + 1] = arr[j]',
+      '    j = j - 1',
+      '  arr[j + 1] = key'
+    ],
+    quick: [
+      'quickSort(arr, low, high)',
+      '  if low < high',
+      '    pi = partition(arr, low, high)',
+      '    quickSort(arr, low, pi - 1)',
+      '    quickSort(arr, pi + 1, high)'
+    ],
+    shell: [
+      'for gap = n/2 down to 1',
+      '  for i = gap to n-1',
+      '    temp = arr[i]',
+      '    j = i',
+      '    while j >= gap and arr[j - gap] > temp',
+      '      arr[j] = arr[j - gap]',
+      '      j -= gap',
+      '    arr[j] = temp'
+    ],
+    radix: [
+      'getMax(arr, n)',
+      'for exp = 1; max/exp > 0; exp *= 10',
+      '  countSort(arr, n, exp)'
+    ]
+  };
+
 
   algorithmDescriptions: { [key: string]: string } = {
     insertion: '1. Iterate through the array, starting from the second element\n2. For each element, compare it with the elements to its left\n3. Insert the element in the correct position in the sorted portion',
@@ -90,18 +165,28 @@ export class SortLabComponent implements OnInit, OnDestroy {
   //   this.router.navigate(['/home']).catch(err => console.error('Navigation error:', err));
   // }
 
+  constructor(private dialog: MatDialog) {}
+
 
   ngOnInit() {
     const savedMode = localStorage.getItem('sortLabMode') as 'single' | 'dual' | 'all';
     this.mode = savedMode || 'single';
     this.updateDescription();
     this.reset();
+
+
   }
+
+
+
+
 
   ngOnDestroy() {
     // Hủy setTimeout khi component bị hủy
     this.clearTimeout();
   }
+
+
 
   setMode(mode: 'single' | 'dual' | 'all') {
     this.mode = mode;
@@ -158,10 +243,23 @@ export class SortLabComponent implements OnInit, OnDestroy {
     this.reset();
   }
 
+  // randomize() {
+  //   this.numbers = Array.from({ length: 25 }, () => Math.floor(Math.random() * 20) + 1);
+  //   this.reset();
+  // }
   randomize() {
-    this.numbers = Array.from({ length: 27 }, () => Math.floor(Math.random() * 20) + 1);
-    this.reset();
+    const dialogRef = this.dialog.open(RandomDialogComponent, {
+      width: '300px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result <= 27 && result > 0) {
+        this.numbers = Array.from({ length: result }, () => Math.floor(Math.random() * 20) + 1);
+        this.reset();
+      }
+    });
   }
+
 
   clear() {
     this.numbers = [];
@@ -221,13 +319,48 @@ export class SortLabComponent implements OnInit, OnDestroy {
     this.runAlgorithms();
   }
 
-  pause() {
+  // pause() {
+  //   this.isPlaying = false;
+  //   this.playButtonText = 'Play';
+  //   this.pauseButtonText = 'Paused';
+  //   this.currentAction = 'Sorting paused!';
+  //   this.clearTimeout(); // Hủy setTimeout khi tạm dừng
+  // }
+  isPaused = false;  // Mặc định không tạm dừng
+
+  togglePause() {
+    if (this.isPaused) {
+      // Nếu đang paused -> Resume
+      this.resumeSorting();
+    } else {
+      // Nếu đang chạy -> Pause
+      this.pauseSorting();
+    }
+    this.isPaused = !this.isPaused;
+  }
+
+  pauseSorting() {
     this.isPlaying = false;
     this.playButtonText = 'Play';
     this.pauseButtonText = 'Paused';
     this.currentAction = 'Sorting paused!';
-    this.clearTimeout(); // Hủy setTimeout khi tạm dừng
+    this.clearTimeout();
   }
+
+  startSorting() {
+    this.isPlaying = true;
+    this.currentAction = 'Sorting started!';
+    this.runAlgorithms();
+  }
+
+  resumeSorting() {
+    this.isPlaying = true;
+    this.playButtonText = 'Playing...';
+    this.pauseButtonText = 'Running';
+    this.currentAction = 'Sorting resumed!';
+    this.startSorting();
+  }
+
 
   nextStep() {
     const clonedState = JSON.parse(JSON.stringify(this.algorithmStates));
@@ -237,6 +370,9 @@ export class SortLabComponent implements OnInit, OnDestroy {
         this.runAlgorithmStep(state);
       }
     });
+    if (this.currentStep < this.currentPseudoCode.length - 1) {
+      this.currentStep++;
+    }
   }
   backStep() {
     const prevState = this.previousStates.pop();
@@ -263,6 +399,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
       this.runAlgorithms();
     }
   }
+
 
   updateDescription() {
     this.algorithmDescription = this.algorithmDescriptions[this.selectedAlgorithm] || 'Select an algorithm to see its description.';
@@ -323,13 +460,24 @@ export class SortLabComponent implements OnInit, OnDestroy {
       case 'insertion':
         if (state.currentStep < nums.length - 1) {
           let i = state.currentStep + 1;
+
           const key = nums[i];
           let j = i - 1;
+
+          this.currentLineIndex = 0; // for i from 1 to length-1
+          this.stepChange.emit(this.currentLineIndex);
           while (j >= 0 && nums[j] > key) {
+            this.currentLineIndex = 1; // while j >= 0 and arr[j] > key
+            this.stepChange.emit(this.currentLineIndex);
             nums[j + 1] = nums[j];
             j--;
+            this.currentLineIndex = 2; // arr[j+1] = arr[j]
+            this.stepChange.emit(this.currentLineIndex);
           }
           nums[j + 1] = key;
+          this.currentLineIndex = 3; // arr[j+1] = key
+          this.stepChange.emit(this.currentLineIndex);
+
           state.swapIndices = [j + 1, i];
           this.currentAction = `Inserted ${key} at position ${j + 1}`;
           state.currentStep++;
@@ -342,11 +490,19 @@ export class SortLabComponent implements OnInit, OnDestroy {
       case 'bubble':
         let swapped = false;
         for (let i = 0; i < nums.length - 1; i++) {
+          this.currentLineIndex = 0; // for i from 0 to n - 1
+          this.stepChange.emit(this.currentLineIndex);
           for (let j = 0; j < nums.length - i - 1; j++) {
+            this.currentLineIndex = 1; // for j from 0 to n - i - 1\
+            this.stepChange.emit(this.currentLineIndex);
             if (nums[j] > nums[j + 1]) {
+              this.currentLineIndex = 2; // if arr[j] > arr[j+1]
+              this.stepChange.emit(this.currentLineIndex);
               [nums[j], nums[j + 1]] = [nums[j + 1], nums[j]];
               state.swapIndices = [j, j + 1];
               this.currentAction = `Swapped ${nums[j]} with ${nums[j + 1]}`;
+              this.currentLineIndex = 3; // swap(arr[j], arr[j+1])
+              this.stepChange.emit(this.currentLineIndex);
               swapped = true;
               break;
             }
@@ -363,12 +519,20 @@ export class SortLabComponent implements OnInit, OnDestroy {
       case 'selection':
         if (state.currentStep < nums.length - 1) {
           let minIndex = state.currentStep;
+          this.currentLineIndex = 0; // for i from 0 to n - 1
+          this.stepChange.emit(this.currentLineIndex);
           for (let j = state.currentStep + 1; j < nums.length; j++) {
+            this.currentLineIndex = 1; // for j from i+1 to n
+            this.stepChange.emit(this.currentLineIndex);
             if (nums[j] < nums[minIndex]) {
+              this.currentLineIndex = 2; // if arr[j] < arr[minIndex]
+              this.stepChange.emit(this.currentLineIndex);
               minIndex = j;
             }
           }
           if (minIndex !== state.currentStep) {
+            this.currentLineIndex = 3; // swap arr[i] with arr[minIndex]
+            this.stepChange.emit(this.currentLineIndex);
             [nums[state.currentStep], nums[minIndex]] = [nums[minIndex], nums[state.currentStep]];
             state.swapIndices = [state.currentStep, minIndex];
             this.currentAction = `Swapped ${nums[state.currentStep]} with ${nums[minIndex]}`;
@@ -386,6 +550,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
         }
         if (state.currentStep < state.steps.length) {
           const step = state.steps[state.currentStep];
+          this.currentLineIndex = step.line ?? 0; // giả sử mỗi step có thể mang theo dòng tương ứng
           [nums[step.i], nums[step.j]] = [step.value2, step.value1];
           state.swapIndices = [step.i, step.j];
           this.currentAction = `Swapped ${nums[step.i]} with ${nums[step.j]}`;
@@ -404,15 +569,25 @@ export class SortLabComponent implements OnInit, OnDestroy {
         if (state.shellGap > 0) {
           const gap = state.shellGap;
           let swapped = false;
+          this.currentLineIndex = 0; // gap = n / 2
+          this.stepChange.emit(this.currentLineIndex);
           for (let i = gap; i < nums.length; i++) {
+            this.currentLineIndex = 1; // for i from gap to n
+            this.stepChange.emit(this.currentLineIndex);
             const temp = nums[i];
             let j = i;
             while (j >= gap && nums[j - gap] > temp) {
+              this.currentLineIndex = 2; // while j >= gap and arr[j-gap] > temp
+              this.stepChange.emit(this.currentLineIndex);
               nums[j] = nums[j - gap];
               j -= gap;
               swapped = true;
+              this.currentLineIndex = 3; // arr[j] = arr[j-gap]
+              this.stepChange.emit(this.currentLineIndex);
             }
             nums[j] = temp;
+            this.currentLineIndex = 4; // arr[j] = temp
+            this.stepChange.emit(this.currentLineIndex);
             if (swapped) {
               state.swapIndices = [j, i];
               this.currentAction = `Inserted ${temp} at position ${j} with gap ${gap}`;
@@ -434,25 +609,35 @@ export class SortLabComponent implements OnInit, OnDestroy {
         if (!state.radixDigit) state.radixDigit = 1;
         const maxNum = Math.max(...nums);
         if (state.radixDigit <= maxNum) {
+          this.currentLineIndex = 0; // find max & start digit = 1
+          this.stepChange.emit(this.currentLineIndex);
           const digit = state.radixDigit;
           const output = new Array(nums.length).fill(0);
           const count = new Array(10).fill(0);
 
+          this.currentLineIndex = 1; // count frequency
+          this.stepChange.emit(this.currentLineIndex);
           for (let i = 0; i < nums.length; i++) {
             const digitValue = Math.floor(nums[i] / digit) % 10;
             count[digitValue]++;
           }
 
+          this.currentLineIndex = 2; // cumulative count
+          this.stepChange.emit(this.currentLineIndex);
           for (let i = 1; i < 10; i++) {
             count[i] += count[i - 1];
           }
 
+          this.currentLineIndex = 3; // build output array
+          this.stepChange.emit(this.currentLineIndex);
           for (let i = nums.length - 1; i >= 0; i--) {
             const digitValue = Math.floor(nums[i] / digit) % 10;
             output[count[digitValue] - 1] = nums[i];
             count[digitValue]--;
           }
 
+          this.currentLineIndex = 4; // copy to nums
+          this.stepChange.emit(this.currentLineIndex);
           for (let i = 0; i < nums.length; i++) {
             nums[i] = output[i];
           }
@@ -472,7 +657,16 @@ export class SortLabComponent implements OnInit, OnDestroy {
       state.isFinished = true;
       state.swapIndices = undefined;
     }
+
+    this.timeoutId = setTimeout(() => {
+      this.currentStep = this.currentLineIndex;
+      this.stepChange.emit(this.currentLineIndex); // chính là cái để highlight dòng
+    }, 2000 / this.speed);
+
+
   }
+
+
 
   isSorted(nums: number[]): boolean {
     for (let i = 0; i < nums.length - 1; i++) {
@@ -530,4 +724,6 @@ export class SortLabComponent implements OnInit, OnDestroy {
   getAvailableAlgorithmsForSecondDropdown(): string[] {
     return this.algorithms.filter(algo => algo !== this.selectedAlgorithm);
   }
+
+
 }

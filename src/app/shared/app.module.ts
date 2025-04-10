@@ -17,9 +17,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {SortLabComponent} from '../components/sort-lab/sort-lab.component';
 import {GetStartComponent} from '../components/get-start/get-start.component';
 import {AppComponent} from '../app.component';
+import {MatDialogModule} from '@angular/material/dialog';
+import {RandomDialogComponent} from '../components/random-dialog/random-dialog.component';
 
 @NgModule({
   declarations: [
+
 
   ],
   imports: [
@@ -32,7 +35,12 @@ import {AppComponent} from '../app.component';
     MatIconModule,
     AppComponent,
     SortLabComponent,
-    GetStartComponent
+    GetStartComponent,
+    MatDialogModule,
+    RandomDialogComponent,
+    SortLabComponent,
+
+
     // For mat-icon-button
   ],
   providers: [],
