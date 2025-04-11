@@ -66,16 +66,15 @@ import {NgIf} from '@angular/common';
 @Component({
   selector: 'app-random-dialog',
   template: `
-    <h2 mat-dialog-title>Nhập số phần tử</h2>
+    <h2 mat-dialog-title>Input Array</h2>
     <mat-dialog-content>
       <mat-form-field appearance="fill">
-        <mat-label>Số lượng (n ≤ 27)</mat-label>
         <input matInput type="number" [(ngModel)]="elementCount"/>
         <mat-hint *ngIf="elementCount > 27" style="color: red;">Số lượng phải ≤ 27</mat-hint>
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Hủy</button>
+      <button mat-button (click)="onCancel()">Cancel</button>
       <button mat-button [disabled]="elementCount > 27 || elementCount < 1" (click)="onConfirm()">Confirm</button>
     </mat-dialog-actions>
   `,

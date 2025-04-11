@@ -18,7 +18,13 @@
   <!-- Main Content -->
   <div class="main-content">
     <!-- Input Section -->
+
+
     <section class="input-section">
+
+      <div class="original-chart">
+
+      </div>
       <h2>Input Data</h2>
       <div class="input-list">
         <div *ngFor="let num of numbers; let i = index" class="input-item">
@@ -36,19 +42,19 @@
         <button mat-raised-button (click)="clear()">Clear</button>
 <!--        <button mat-raised-button color="primary" (click)="submit()">Submit</button>-->
       </div>
-      <section class="description-section">
-        <h2>Instructions</h2>
-        <div class="algorithm-overview">
-                <h3>Algorithm Overview</h3>
-                <p>{{ algorithmDescription }}</p>
-                <h3>Input Data</h3>
-                <p>{{ numbers.join(', ') }}</p>
-        </div>
-        <div class="current-actions">
-          <h3>Current Actions</h3>
-          <p>{{ currentAction }}</p>
-        </div>
-      </section>
+<!--      <section class="description-section">-->
+<!--        <h2>Instructions</h2>-->
+<!--        <div class="algorithm-overview">-->
+<!--                <h3>Algorithm Overview</h3>-->
+<!--                <p>{{ algorithmDescription }}</p>-->
+<!--                <h3>Input Data</h3>-->
+<!--                <p>{{ numbers.join(', ') }}</p>-->
+<!--        </div>-->
+<!--        <div class="current-actions">-->
+<!--          <h3>Current Actions</h3>-->
+<!--          <p>{{ currentAction }}</p>-->
+<!--        </div>-->
+<!--      </section>-->
     </section>
 
     <!-- Visualization Section -->
@@ -90,14 +96,19 @@
         </div>
 
         <div class="pe" *ngIf="mode === 'single'">
-              <app-code-highlight
-                [codeLines]="pseudoCodes[selectedAlgorithm]"
-                [activeLine]="currentLineIndex">
-              </app-code-highlight>
-              <app-sorting-chart
-                [algorithm]="selectedAlgorithm"
-                (stepChange)="currentStep = $event">
-              </app-sorting-chart>
+              <div class="pe1">
+                <app-code-highlight
+                  [codeLines]="pseudoCodes[selectedAlgorithm]"
+                  [activeLine]="currentLineIndex">
+                </app-code-highlight>
+                <app-sorting-chart
+                  [algorithm]="selectedAlgorithm"
+                  (stepChange)="currentStep = $event">
+                </app-sorting-chart>
+              </div>
+          <div class="pe2">
+            <p>DebugTable of Loc Hoi</p>
+          </div>
             </div>
 
 
