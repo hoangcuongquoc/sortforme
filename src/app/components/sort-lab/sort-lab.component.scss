@@ -1,12 +1,11 @@
 .sort-lab-container {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
+  //display: grid;
+  //grid-template-columns: 1fr 2fr;
   gap: 20px;
   padding: 20px;
   height: 100%;
   background-color: #e8f0fe;
-  //overflow-x: hidden;
-  //overflow-y: hidden;
+  overflow: hidden;
 }
 
 /* Header */
@@ -19,6 +18,8 @@
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 98%;
+  height: fit-content;
 }
 
 .back{
@@ -60,6 +61,8 @@
   grid-column: 1 / 3;
   display: flex;
   gap: 20px;
+  margin-top: 20px;
+  height: 85%;
 }
 
 /* Input Section */
@@ -69,7 +72,7 @@
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 895px;
+  //height: 100%;
   display: flex;
   flex-direction: column;
   max-width: 290px;
@@ -140,7 +143,7 @@
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 895px;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
 }
