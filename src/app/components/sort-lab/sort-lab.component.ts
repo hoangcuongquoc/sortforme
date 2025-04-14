@@ -13,6 +13,7 @@ import { AlgorithmPseudocode } from '../../shared/algorithm-pseudo';
 import {CodeHighlightComponent} from '../code-highlight/code-highlight.component';
 import {SortingChartComponent} from '../sorting-chart/sorting-chart.component';
 import {delay} from 'rxjs';
+import {SortVisualizationComponent} from '../sort-visualization/sort-visualization.component';
 
 
 interface AlgorithmState {
@@ -55,6 +56,7 @@ interface AlgorithmState {
     NgIf,
     CodeHighlightComponent,
     SortingChartComponent,
+    SortVisualizationComponent,
 
   ],
 })
@@ -65,7 +67,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
   mode: 'single' | 'dual' | 'all' = 'single';
   selectedAlgorithm: string = 'insertion';
   selectedAlgorithm2: string = 'bubble';
-  numbers: number[] = [1, 2, 12, 23, 12, 18, 9 , 20, 5, 6, 7];
+  numbers: number[] = [1, 2, 10, 23, 12, 18, 9 , 20, 25, 6, 7];
   newNumber: number | null = null;
   algorithmDescription: string = '';
   speed: number = 1;
@@ -77,7 +79,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
   previousStates: any[][] = [];
   currentAction: string = '';
   currentPseudoCode: string[] = [];
-  pseudoCodeList: string[] = ['Line 1', 'Line 2', 'Line 3'];
+  // pseudoCodeList: string[] = ['Line 1', 'Line 2', 'Line 3'];
   currentLineIndex = 0;
 
   @Output() stepChange = new EventEmitter<number>();
@@ -228,7 +230,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
   addNumber() {
     if (this.newNumber !== null) {
       if (this.newNumber > 1000) {
-        alert('Số nhập vào không được lớn hơn 1000!');
+        alert('Input number cannot be greater than 1000!');
         this.newNumber = null;
         return;
       }
@@ -237,6 +239,18 @@ export class SortLabComponent implements OnInit, OnDestroy {
       this.reset();
     }
   }
+  checkEmptyOrInvalid(index: number) {
+    const value = this.numbers[index];
+
+
+    if (value == null || isNaN(Number(value))) {
+      this.removeNumber(index);
+    }
+  }
+
+
+
+
 
   removeNumber(index: number) {
     this.numbers.splice(index, 1);
@@ -326,14 +340,14 @@ export class SortLabComponent implements OnInit, OnDestroy {
   //   this.currentAction = 'Sorting paused!';
   //   this.clearTimeout(); // Hủy setTimeout khi tạm dừng
   // }
-  isPaused = false;  // Mặc định không tạm dừng
+  isPaused = false;
 
   togglePause() {
     if (this.isPaused) {
-      // Nếu đang paused -> Resume
+
       this.resumeSorting();
     } else {
-      // Nếu đang chạy -> Pause
+
       this.pauseSorting();
     }
     this.isPaused = !this.isPaused;
@@ -385,6 +399,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
 
   canGoBack(): boolean {
     return this.previousStates.length > 0;
+
   }
 
 
@@ -550,7 +565,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
         }
         if (state.currentStep < state.steps.length) {
           const step = state.steps[state.currentStep];
-          this.currentLineIndex = step.line ?? 0; // giả sử mỗi step có thể mang theo dòng tương ứng
+          this.currentLineIndex = step.line ?? 0;
           [nums[step.i], nums[step.j]] = [step.value2, step.value1];
           state.swapIndices = [step.i, step.j];
           this.currentAction = `Swapped ${nums[step.i]} with ${nums[step.j]}`;

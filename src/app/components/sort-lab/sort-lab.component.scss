@@ -38,7 +38,9 @@
 .logo{
   width: 50px;
   height: 50px;
-  border-radius: 5px;
+  border-radius: 50px;
+  object-fit: contain;
+
 }
 
 .header h1 {
@@ -279,7 +281,7 @@
   display: flex;
   //background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
   justify-content: space-between;
-  height: 100px;
+  min-height: 10%;
   align-items: baseline;
 
 }
@@ -443,6 +445,7 @@
 }
 
 .original-chart{
+  padding: 5px;
   min-height: 25%;
   width: 100%;
   background-color: #b79eff;
