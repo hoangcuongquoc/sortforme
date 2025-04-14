@@ -56,6 +56,7 @@ interface AlgorithmState {
     CodeHighlightComponent,
     SortingChartComponent,
 
+
   ],
 })
 
@@ -79,6 +80,7 @@ export class SortLabComponent implements OnInit, OnDestroy {
   currentPseudoCode: string[] = [];
   pseudoCodeList: string[] = ['Line 1', 'Line 2', 'Line 3'];
   currentLineIndex = 0;
+
 
   @Output() stepChange = new EventEmitter<number>();
 
@@ -238,11 +240,17 @@ export class SortLabComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeNumber(index: number) {
+  removeNumber(index: number): void {
     this.numbers.splice(index, 1);
-    this.reset();
+    this.reset(); // xử lý lại nếu cần
   }
 
+  onInputChange(index: number): void {
+    if (this.numbers[index] == null) {
+      this.removeNumber(index);
+    }
+
+  }
   // randomize() {
   //   this.numbers = Array.from({ length: 25 }, () => Math.floor(Math.random() * 20) + 1);
   //   this.reset();

@@ -23,16 +23,29 @@
     <section class="input-section">
 
       <div class="original-chart">
-
+        <div class="bar-cuong">
+          <div *ngFor="let num of numbers" class="bar-original">
+            <div
+              class="bar-wrap"
+              [style.height.px]="getBarHeight(num, numbers)"
+              [style.width.px]="getBarWidth(numbers)"
+              [style.backgroundColor]="'#ccc'"
+            ></div>
+            <div class="bar-label">{{ num }}</div>
+          </div>
+        </div>
       </div>
+
       <h2>Input Data</h2>
       <div class="input-list">
         <div *ngFor="let num of numbers; let i = index" class="input-item">
-          <input type="number" [(ngModel)]="numbers[i]" />
-          <button mat-icon-button (click)="removeNumber(i)"><mat-icon>delete_outline</mat-icon></button>
+          <input type="number" [(ngModel)]="numbers[i]" (ngModelChange)="onInputChange(i)" />
+          <button mat-icon-button (click)="removeNumber(i)">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
         </div>
-
       </div>
+
       <div class="add-input">
         <input type="number" placeholder="Add a number..." [(ngModel)]="newNumber" />
         <button mat-raised-button color="primary" (click)="addNumber()">+ Add Value</button>
